@@ -1,0 +1,404 @@
+---
+title: "test_sprint_coverage_visualizations"
+author: "Javier Torralba"
+date: "2023-06-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(
+  stars, # spatiotemporal data handling
+  raster, # raster data handling
+  terra, # raster data handling
+  sf, # vector data handling
+  dplyr, # data wrangling
+  stringr, # string manipulation
+  lubridate, # dates handling
+  data.table, # data wrangling
+  patchwork, # arranging figures
+  tigris, # county border
+  colorspace, # color scale
+  viridis, # arranging figures
+  tidyr, # reshape
+  ggspatial, # north arrow and scale bar
+  ggplot2, # make maps
+  foreign,
+  readr,
+  maps
+)
+```
+
+```{r}
+us_states <- map_data("state")
+```
+
+What does each number of the files represent? (only for 2018 visualizations, numbering changes after 2019)
+
+80  – WCDMA/UMTS/HSPA: 3G
+81  – HSPA+: 3.5G
+82  – EVDO/EVDO Rev A: 3G
+83  – LTE: 4G
+84  – WiMAX: 4G (can also support fixed wireless access)
+85  – CDMA: 2G/3G (CDMA2000 can be considered 3G)
+86  – GSM: 2G/2.5G
+87  – Analog: 1G/Analog (legacy)
+88  – Other: Varies (can include different generations or specific technologies)
+
+This information can be found in the FCC Form 477 ("old477instructions.pdf"), table 3
+
+Loading in data
+```{r}
+sprint_3G_2018_06 <- st_read(dsn = "F477_2018_06_Broadband_Sprint_82", layer = "Sprint_82")
+sprint_4G_LTE_2018_06 <- st_read(dsn = "F477_2018_06_Broadband_Sprint_83", layer = "Sprint_83")
+```
+
+
+Data visualizations
+```{r}
+sprint_3G_2018_06_map <- ggplot() +
+  geom_sf(data = sprint_3G_2018_06) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "Sprint 3G Coverage (EVDO/EVDO Rev A) June 2018") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("sprint_3G_2018_06_map.pdf", plot = sprint_3G_2018_06_map, height = 4, width = 6, dpi = 100)
+```
+```{r}
+rm(sprint_3G_2018_06, sprint_3G_2018_06_map)
+```
+
+```{r}
+sprint_4G_LTE_2018_06_map <- ggplot() +
+  geom_sf(data = sprint_4G_LTE_2018_06) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "Sprint 4G LTE June 2018") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("sprint_4G_LTE_2018_06_map.pdf", plot = sprint_4G_LTE_2018_06_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(sprint_4G_LTE_2018_06, sprint_4G_LTE_2018_06_map)
+```
+
+
+```{r}
+T_Mobile_3G_2018_06 <- st_read(dsn = "F477_2018_06_Broadband_T_Mobile_80", layer = "T_Mobile_80")
+T_Mobile_3.5G_2018_06 <- st_read(dsn = "F477_2018_06_Broadband_T_Mobile_81", layer = "T_Mobile_81")
+T_Mobile_4G_LTE_2018_06 <- st_read(dsn = "F477_2018_06_Broadband_T_Mobile_83", layer = "T_Mobile_83")
+```
+```{r}
+T_Mobile_3G_2018_06_map <- ggplot() +
+  geom_sf(data = T_Mobile_3G_2018_06) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "T-Mobile 3G (WCDMA/UMTS/HSPA) June 2018") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("T_Mobile_3G_2018_06_map.pdf", plot = T_Mobile_3G_2018_06_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(T_Mobile_3G_2018_06, T_Mobile_3G_2018_06_map)
+```
+
+```{r}
+T_Mobile_3.5G_2018_06_map <- ggplot() +
+  geom_sf(data = T_Mobile_3.5G_2018_06) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "T-Mobile 3.5G (HSPA+) June 2018") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("T_Mobile_3.5G_2018_06_map.pdf", plot = T_Mobile_3.5G_2018_06_map, height = 4, width = 6, dpi = "screen")
+```
+
+```{r}
+rm(T_Mobile_3.5G_2018_06, T_Mobile_3.5G_2018_06_map)
+```
+
+```{r}
+T_Mobile_4G_LTE_2018_06_map <- ggplot() +
+  geom_sf(data = T_Mobile_4G_LTE_2018_06) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "T-Mobile 4G LTE June 2018") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("T_Mobile_4G_LTE_2018_06_map.pdf", plot = T_Mobile_4G_LTE_2018_06_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(T_Mobile_4G_LTE_2018_06, T_Mobile_4G_LTE_2018_06_map)
+```
+
+```{r}
+Sprint_4G_LTE_2019_12 <- st_read(dsn = "F477_2019_12_Broadband_Sprint_83_268336", layer = "Sprint_LTE")
+Sprint_5G_2019_12 <- st_read(dsn = "F477_2019_12_Broadband_Sprint_84_266740", layer = "Sprint_5G")
+Sprint_3G_2019_12 <- st_read(dsn = "F477_2019_12_Broadband_Sprint_85_268203", layer = "Sprint_EVDO") 
+```
+
+```{r}
+Sprint_5G_2019_12_map <- ggplot() +
+  geom_sf(data = Sprint_5G_2019_12) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "Sprint 5G December 2019") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("Sprint_5G_2019_12_map.pdf", plot = Sprint_5G_2019_12_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(Sprint_5G_2019_12_map, Sprint_5G_2019_12)
+```
+
+
+
+```{r}
+Sprint_4G_LTE_2019_12_map <- ggplot() +
+  geom_sf(data = Sprint_4G_LTE_2019_12) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "Sprint 4G LTE December 2019") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("Sprint_4G_LTE_2019_12_map.pdf", plot = Sprint_4G_LTE_2019_12_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(Sprint_4G_LTE_2019_12, Sprint_4G_LTE_2019_12_map)
+```
+
+
+```{r}
+Sprint_3G_2019_12_map <- ggplot() +
+  geom_sf(data = Sprint_3G_2019_12) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "Sprint 3G December 2019") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("Sprint_3G_2019_12_map.pdf", plot = Sprint_3G_2019_12_map, height = 4, width = 6, dpi = 72)
+```
+
+
+```{r}
+rm(Sprint_3G_2019_12, Sprint_3G_2019_12_map)
+```
+
+```{r}
+T_Mobile_3G_2019_12 <- st_read(dsn = "F477_2019_12_Broadband_T_Mobile_80_280579", layer = "MBD_Technology86")
+T_Mobile_4G_LTE_2019_12 <- st_read(dsn = "F477_2019_12_Broadband_T_Mobile_83_279545", layer = "MBD_LTE") 
+T_Mobile_5G_2019_12 <- st_read(dsn = "F477_2019_12_Broadband_T_Mobile_84_280418", layer = "MBD_5G-NR")
+```
+
+```{r}
+T_Mobile_4G_LTE_2019_12_map <- ggplot() +
+  geom_sf(data = T_Mobile_4G_LTE_2019_12) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "T-Mobile 4G LTE December 2019") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("T_Mobile_4G_LTE_2019_12_map.pdf", plot = T_Mobile_4G_LTE_2019_12_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(T_Mobile_4G_LTE_2019_12, T_Mobile_4G_LTE_2019_12_map)
+```
+
+
+```{r}
+T_Mobile_5G_2019_12_map <- ggplot() +
+  geom_sf(data = T_Mobile_5G_2019_12) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "T-Mobile 5G December 2019") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("T_Mobile_5G_2019_12_map.pdf", plot = T_Mobile_5G_2019_12_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(T_Mobile_5G_2019_12_map, T_Mobile_5G_2019_12)
+```
+
+```{r}
+T_Mobile_3G_2019_12_map <- ggplot() +
+  geom_sf(data = T_Mobile_3G_2019_12) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "T-Mobile 3G December 2019") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("T_Mobile_3G_2019_12_map.pdf", plot = T_Mobile_3G_2019_12_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(T_Mobile_3G_2019_12, T_Mobile_3G_2019_12_map)
+```
+
+```{r}
+Sprint_3G_2021_12 <- st_read(dsn = "F477_2021_12_Broadband_Sprint_85_384858", layer = "Sprint_EVDO_1")
+Sprint_3G_2021_12_alternative <- st_read(dsn = "F477_2021_12_Broadband_Sprint_85_384862", layer = "Sprint_EVDO_2")
+```
+```{r}
+Sprint_3G_2021_12_map <- ggplot() +
+  geom_sf(data = Sprint_3G_2021_12) +
+  geom_sf(data = Sprint_3G_2021_12_alternative) + 
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "Sprint 3G (EVDO 1) December 2021") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("Sprint_3G_2021_12_map.pdf", plot = Sprint_3G_2021_12_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(Sprint_3G_2021_12_map, Sprint_3G_2021_12, Sprint_3G_2021_12_alternative)
+```
+
+
+
+```{r}
+T_Mobile_5G_2021_12_part_1 <- st_read(dsn = "F477_2021_12_Broadband_T_Mobile_89_384108", layer = "MBD_5G_NR_1")
+T_Mobile_5G_2021_12_part_2 <- st_read(dsn = "F477_2021_12_Broadband_T_Mobile_89_384109", layer = "MBD_5G_NR_2")
+```
+```{r}
+ggplot() +
+  geom_sf(data = T_Mobile_5G_2021_12_part_1) +
+    geom_sf(data = T_Mobile_5G_2021_12_part_2) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "T-Mobile 5G December 2021") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("T_Mobile_5G_2021_12_map.pdf", plot = T_Mobile_5G_2021_12_map, height = 4, width = 6, dpi = 72)
+```
+
+```{r}
+rm(T_Mobile_5G_2021_12_part_1, T_Mobile_5G_2021_12_part_2, T_Mobile_5G_2019_12_map)
+```
+
+```{r}
+T_Mobile_4G_2021_12_part_1 <- st_read(dsn = "F477_2021_12_Broadband_T_Mobile_83_383401", layer = "FCC_BDC_2")
+T_Mobile_4G_2021_12_part_2 <- st_read(dsn = "F477_2021_12_Broadband_T_Mobile_83_399525", layer = "FCC_BDC_1")
+```
+
+```{r}
+T_Mobile_4G_2021_12_map <- ggplot() +
+  geom_sf(data = T_Mobile_4G_2021_12_part_1) +
+    geom_sf(data = T_Mobile_4G_2021_12_part_1) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "T-Mobile 4G December 2019") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("T_Mobile_4G_2021_12_map.pdf", plot = T_Mobile_4G_2021_12_map, height = 4, width = 6, dpi = 72)
+```
+
+
+```{r}
+T_Mobile_3G_2021_12_part_1 <- st_read(dsn = "F477_2021_12_Broadband_T_Mobile_86_390036", layer = "MBD_Technology86_1")
+T_Mobile_3G_2021_12_part_2 <- st_read(dsn = "F477_2021_12_Broadband_T_Mobile_86_390037", layer = "MBD_Technology86_2")
+```
+
+
+```{r}
+T_Mobile_3G_2021_12_map <- ggplot() +
+  geom_sf(data = T_Mobile_3G_2021_12_part_1) +
+    geom_sf(data = T_Mobile_3G_2021_12_part_2) +
+  geom_polygon(data = us_states, aes(x = long, y = lat, group = group),
+               fill = NA, color = "black", linewidth = 0.1) +
+  labs(title = "T-Mobile 3G December 2021") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_blank())
+
+ggsave("T_Mobile_3G_2021_12_map.pdf", plot = T_Mobile_3G_2021_12_map, height = 4, width = 6, dpi = 72)
+```
+
+
+
+
