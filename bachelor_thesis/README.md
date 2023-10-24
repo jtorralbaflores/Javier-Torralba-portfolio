@@ -1,5 +1,4 @@
-# Bachelor thesis - Javier Torralba
-Title: The effects of shocks in leisure time on book consumption: evidence from Goodreads
+# The effects of shocks in leisure time on book consumption: evidence from Goodreads (bachelor thesis)
 Supervisor: Lachlan Deer
 Second Reader: Elena Cettolin
 Result: 8.5/10
