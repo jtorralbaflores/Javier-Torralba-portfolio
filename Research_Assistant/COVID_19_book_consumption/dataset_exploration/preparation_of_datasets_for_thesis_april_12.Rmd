@@ -1,0 +1,256 @@
+---
+title: "Preparation of data sets"
+author: "Javier Torralba"
+date: "2023-03-11"
+output: html_document
+---
+
+### Reading in the data & loading libraries
+```{r}
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(lubridate)
+library(tidyr)
+library(car)
+library(data.table)
+```
+
+# Preparation of Covid stringency dataset
+```{r}
+all_covid_data <- read_csv("D:/Research assistant/Thesis/Data wrangling for Thesis/Preparation of datasets/owid-covid-data (1).csv")
+```
+Selecting only relevant columns
+```{r}
+stringency_covid_data_raw <- all_covid_data %>% select("date","location", "stringency_index")
+
+list_of_countries_a <- c("United Arab Emirates",	"Argentina",	"Australia",	"Austria",	"Bangladesh",	"Bulgaria",	"Egypt",	"Estonia",	"Finland",	"United Kingdom",	"Indonesia",	"India",	"Italy",	"Lithuania",	"Latvia",	"Mexico",	"Malaysia",	"Netherlands",	"Norway",	"Nepal",	"Pakistan",	"Panama", "Philippines",	"Poland",	"Portugal",	"Romania", "Russia",	"Singapore",	"Sweden",	"Turkey",	"Venezuela")
+
+stringency_covid_data <- stringency_covid_data_raw %>% 
+  filter(location %in% list_of_countries_a) 
+
+stringency_covid_data <- stringency_covid_data %>%
+  rename(Country = location) 
+
+stringency_covid_data_date_added <- stringency_covid_data %>%
+  mutate(date_added = date)
+
+stingency_covid_date_date_read <- stringency_covid_data %>%
+  mutate(date_read = date)
+```
+
+Removing the unnecessary data
+```{r}
+rm(all_covid_data, stringency_covid_data_raw, stringency_covid_data)
+```
+
+The dataset for all the covid related stringency 
+```{r}
+stringency_covid_data
+```
+# Preparation of the books & users datasets 
+```{r}
+users_cleaned <- read_csv("D:/Research assistant/Covid-19-book-consumption/covid-19-book-consumption-20230130T171808Z-001/covid-19-book-consumption/gen/temp/users_cleaned.csv")
+
+books_cleaned <- read_csv("D:/Research assistant/Covid-19-book-consumption/covid-19-book-consumption-20230130T171808Z-001/covid-19-book-consumption/gen/temp/books_cleaned.csv")
+
+
+```
+
+Reducing the data in books cleaned and merging it with users cleaned
+```{r}
+# Rename the variable reader id to user_id
+books_cleaned_date_added <- books_cleaned %>%
+  filter(date_added >= as.Date("2015-01-01") & date_added <= as.Date("2021-12-31")) %>%
+  rename(user_id = `reader id`)
+
+# Merge the books_cleaned and users_cleaned datasets by user_id
+merged_data_date_added <- merge(books_cleaned_date_added, users_cleaned, by = 'user_id') 
+
+# Rename the variable reader id to user_id
+books_cleaned_date_read <- books_cleaned %>%
+  filter(date_read >= as.Date("2015-01-01") & date_read <= as.Date("2021-12-31")) %>%
+  rename(user_id = `reader id`)
+
+# Merge the books_cleaned and users_cleaned datasets by user_id
+merged_data_date_read <- merge(books_cleaned_date_read, users_cleaned, by = 'user_id') 
+
+```
+
+Now that we have used books_cleaned and users_cleaned, I will remove both data sets to make R run smoother
+```{r}
+rm(books_cleaned, books_cleaned_date_added, books_cleaned_date_read, users_cleaned)
+```
+
+
+Renaming the columns for clarity
+```{r}
+merged_data_date_added <- merged_data_date_added %>%
+  rename(avg_rating_given_by_user = Avg.Rating,
+         avg_rating_of_book = avg_rating,
+         book_url = `book url`,
+         user_rating = `user rating`,
+         nr_ratings_by_user = `Nr.Ratings`,
+         nr_reviews_by_user = `Nr.Reviews`,
+         nr_books_read_by_user = `Nr.Books.Read`) %>%
+  select(-`...1.x`, -V1.x, -dummy.x,-date_started_month, -date_read_month, -read_time_months, -...1.y, -V1.y, -dummy.y)
+
+merged_data_date_read <- merged_data_date_read %>%
+  rename(avg_rating_given_by_user = Avg.Rating,
+         avg_rating_of_book = avg_rating,
+         book_url = `book url`,
+         user_rating = `user rating`,
+         nr_ratings_by_user = `Nr.Ratings`,
+         nr_reviews_by_user = `Nr.Reviews`,
+         nr_books_read_by_user = `Nr.Books.Read`) %>%
+  select(-`...1.x`, -V1.x, -dummy.x,-date_started_month, -date_read_month, -read_time_months, -...1.y, -V1.y, -dummy.y)
+```
+
+# Merging the covid restriction and books dataset
+```{r}
+all_data_date_added <- left_join(merged_data_date_added, stringency_covid_data_date_added, by= c("Country","date_added"))
+
+all_data_date_read <- left_join(merged_data_date_read, stingency_covid_date_date_read, by= c("Country","date_read"))
+
+
+rm(merged_data_date_added, merged_data_date_read, stringency_covid_data_date_added, stingency_covid_date_date_read)
+```
+
+Fixing the NAs
+```{r}
+#For date_read
+all_data_jt_date_read <- all_data_date_read %>% 
+  mutate(stringency_index = if_else(is.na(stringency_index) & date_read <= as.Date("2020-02-28"), 0, stringency_index))
+
+all_data_jt1_date_read <- all_data_jt_date_read %>% 
+  filter(year(date_read) <= 2021)
+
+rm(all_data_date_read, all_data_jt_date_read)
+
+#Now for date_added
+
+all_data_jt_date_added <- all_data_date_added %>% 
+  mutate(stringency_index = if_else(is.na(stringency_index) & date_added <= as.Date("2020-02-28"), 0, stringency_index))
+
+all_data_jt1_date_addded <- all_data_jt_date_added %>% 
+  filter(year(date_added) <= 2021)
+
+rm(all_data_date_added, all_data_jt_date_added)
+```
+
+# Data with ISBNs
+```{r}
+# Load data
+all_books_001 <- read_csv("D:/Research assistant/Covid-19-book-consumption/covid-19-book-consumption-20230130T171808Z-001/covid-19-book-consumption/data/all_books-001.csv")
+
+# select only relevant columns 
+isbn_and_book_url <- all_books_001 %>%
+  select(`book url`, isbn13, `reader id`, `book title`, author_name) %>%
+  rename(book_url = `book url`,
+         user_id = `reader id`,
+         book_title = `book title`)
+
+# get rid of dataset to run smoother
+rm(all_books_001)
+
+# convert the isbn13 column to numeric
+isbn_and_book_url$isbn13 <- as.numeric(as.character(isbn_and_book_url$isbn13))
+
+# apply the floor function to the isbn13 column
+isbn_and_book_url$isbn13 <- floor(isbn_and_book_url$isbn13)
+
+options(scipen = 999)
+```
+
+# Merging both datasets to have the final dataset with ISBN included
+```{r}
+filtered_isbn_and_book_url <- isbn_and_book_url %>%
+  distinct(user_id, book_url, .keep_all = TRUE)
+
+all_data_jt1_date_addded_and_isbn <- left_join(all_data_jt1_date_addded, filtered_isbn_and_book_url, by = c('user_id', 'book_url'))
+
+rm(all_data_jt1_date_addded)
+
+all_data_jt1_date_read_and_isbn <- left_join(all_data_jt1_date_read, filtered_isbn_and_book_url, by = c('user_id', 'book_url'))
+
+rm(isbn_and_book_url, filtered_isbn_and_book_url, all_data_jt1_date_read)
+```
+
+# Cleaning final touches for all_data_jt1_top
+```{r}
+library(data.table)
+fwrite(all_data_jt1_date_addded_and_isbn, "all_data_jt1_date_addded_and_isbn.csv", row.names = FALSE)
+
+fwrite(all_data_jt1_date_read_and_isbn, "all_data_jt1_date_read_and_isbn.csv", row.names = FALSE )
+```
+
+
+# General information on the data
+```{r}
+# Calculate the percentage of observations with an entry for isbn13
+pct_with_isbn13 <- 100 * sum(!is.na(all_data_jt1_top_10_countries_and_isbn$isbn13)) / nrow(all_data_jt1_top_10_countries_and_isbn)
+
+# Calculate the percentage of observations with NA in the isbn13 column
+pct_without_isbn13 <- 100 - pct_with_isbn13
+
+```
+
+
+
+Number of user_id
+```{r}
+n_unique_users <- length(unique(all_data_jt1$user_id))
+
+print(n_unique_users)
+```
+Number of user IDs that have two or more observations
+```{r}
+users_with_multiple_obs <- all_data_jt1 %>% 
+                           group_by(user_id) %>% 
+                           summarize(n_obs = n()) %>% 
+                           filter(n_obs >= 2)
+
+n_users_with_multiple_obs <- nrow(users_with_multiple_obs)
+
+print(n_users_with_multiple_obs)
+```
+Percentage of users that have at least two observations
+```{r}
+71067/77157*100
+```
+Percentage of age reported by users
+```{r}
+
+percent_with_age <- all_data_jt1 %>% 
+                    summarize(has_age = !is.na(Age)) %>% 
+                    summarize(percent_with_age = sum(has_age) / nrow(all_data_jt1) * 100)
+
+print(paste0("Percentage of observations with reported age: ", round(percent_with_age$percent_with_age, 2), "%"))
+```
+Percentage of observations that reported gender
+```{r}
+
+percent_male_obs <- all_data_jt1 %>% 
+                    summarize(has_male = if_else(Male == 1, 1, 0, missing = 0)) %>% 
+                    summarize(percent_male_obs = sum(has_male) / nrow(all_data_jt1) * 100)
+
+print(paste0("Percentage of observations that report being male: ", round(percent_male_obs$percent_male_obs, 2), "%"))
+```
+
+
+
+# Initial checks on potential regressions
+```{r}
+model <- lm(log(user_rating) ~ stringency_index + avg_rating_of_book + avg_rating_given_by_user, data = all_data_jt1)
+summary(model)
+vif(model)
+```
+```{r}
+cor.test(all_data_jt1$totalbooks_left, all_data_jt1$days_active)
+```
+
+```{r}
+form <- log(user_rating)
+```
+
