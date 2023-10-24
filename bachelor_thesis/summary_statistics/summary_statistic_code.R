@@ -120,10 +120,6 @@ stargazer(relevant_variables_3, type = "html", iqr = TRUE,
           median = TRUE, title = "Table 1: summary statistics for dependent and independent variables",
           out = "summary_statistics_bachelor_thesis.html")
 
-stargazer(relevant_variables_3, type = "latex", iqr = TRUE, 
-          median = TRUE, title = "Table 1: summary statistics for dependent and independent variables",
-          out = "summary_statistics_bachelor_thesis.tex")
-
 # Set the file name and path
 file_name <- "summary_table.tex"
 file_path <- getwd()
