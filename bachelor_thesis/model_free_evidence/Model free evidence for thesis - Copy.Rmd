@@ -1,0 +1,403 @@
+---
+title: "Model free evidence bachelor thesis"
+author: "Javier Torralba"
+date: "2023-04-25"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+# Model free evidence for my thesis
+## Load the libraries
+```{r}
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(lubridate)
+library(viridis)
+```
+## Loading data that will be used
+```{r}
+all_data_jt1_date_read_and_isbn <- read_csv("D:/Research assistant/Thesis/Data wrangling for Thesis/Preparation of datasets/all_data_jt1_date_read_and_isbn.csv")
+```
+## Preparing graph data
+```{r}
+stringency_index_graph <-   all_data_jt1_date_read_and_isbn %>% 
+  select(date_read, stringency_index) %>% na.omit() %>%
+mutate(week_start = floor_date(date_read, unit = "week"))  %>%
+  group_by(week_start) %>%
+  summarize(avg_stringency_index = mean(stringency_index))
+
+stringency_index_graph <- stringency_index_graph %>%
+  filter(week_start >= as.Date("2020-01-01"))
+  
+```
+
+Stringency index graph
+```{r}
+stringency_index_plot <- ggplot() + 
+  geom_line(data = stringency_index_graph, aes(x = week_start, y = avg_stringency_index), size = 0.8) + 
+  geom_vline(xintercept = as.numeric(as.Date("2020-03-01")), color = "red", linetype = "dashed") +
+  labs(x = "",
+       y = "Average stringency index",
+       title = "Figure 3: Development of stringency index") +
+    scale_x_date(date_labels = "%b-%Y", 
+               breaks = seq(as.Date("2020-01-01"), as.Date("2022-01-01"), by = "2 month"), 
+               limits = c(as.Date("2020-01-01"), as.Date("2022-01-01")),
+               name = "") +
+  
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(size = 13, hjust = 0.5)) +
+  ggtitle("Figure 3: Development of stringency index")
+
+ggsave("stringency_index_graph.png", plot = stringency_index_plot, height = 4, width = 6, dpi = 300)
+```
+
+## Average user rating graph
+Preparing data
+```{r}
+user_rating_graph <-   all_data_jt1_date_read_and_isbn %>% 
+  select(date_read, user_rating) %>% 
+  na.omit() %>%
+mutate(week_start = floor_date(date_read, unit = "week"))  %>%
+  group_by(week_start) %>%
+  summarize(avg_user_rating = mean(user_rating)) %>%
+    filter(week_start >= as.Date("2018-01-01"))
+```
+
+
+Typical boring graph 
+```{r}
+user_rating_plot <- ggplot() + 
+  geom_line(data = user_rating_graph, aes(x = week_start, y = avg_user_rating), size = 0.28) + 
+  geom_vline(xintercept = as.numeric(as.Date("2020-03-01")), color = "red", linetype = "dashed") +
+  labs(x = "",
+       y = "Average rating (out of 5)",
+       title = "Development of average user rating over time") +
+      scale_x_date(date_labels = "%b-%Y", 
+               breaks = seq(as.Date("2018-01-01"), as.Date("2022-01-01"), by = "3 month"), 
+               limits = c(as.Date("2018-01-01"), as.Date("2022-01-01")),
+               name = "") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(size = 13, hjust = 0.5)) +
+  ggtitle("Figure 4: Development of average user rating")
+  
+ggsave("user_rating_graph_UPDATED.png", plot = user_rating_plot, height = 4, width = 6, dpi = 300)
+```
+
+## Average reading time per day graph
+```{r}
+reading_time_days_graph <-   all_data_jt1_date_read_and_isbn %>% 
+  select(date_read, read_time_days) %>%
+  mutate(read_time_days = ifelse(read_time_days > quantile(read_time_days, 0.98, na.rm = TRUE), NA, read_time_days)) %>%
+  na.omit() %>%
+mutate(week_start = floor_date(date_read, unit = "week"))  %>%
+  group_by(week_start) %>%
+  summarize(avg_read_time_days = mean(read_time_days)) %>%
+    filter(week_start >= as.Date("2018-01-01"))
+```
+
+
+Typical boring graph 
+```{r}
+reading_time_plot <- ggplot() + 
+  geom_line(data = reading_time_days_graph, aes(x = week_start, y = avg_read_time_days), size = 0.4) + 
+  geom_vline(xintercept = as.numeric(as.Date("2020-03-01")), color = "red", linetype = "dashed") +
+  labs(x = "",
+       y = "Days",
+       title = "Figure 5: Average number of days to read a book") +
+      scale_x_date(date_labels = "%b-%Y", 
+               breaks = seq(as.Date("2018-01-01"), as.Date("2022-01-01"), by = "3 month"), 
+               limits = c(as.Date("2018-01-01"), as.Date("2022-01-01")),
+               name = "") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(size = 13, hjust = 0.5)) +
+  ggtitle("Figure 5: Average number of days to read a book")
+  
+ggsave("reading_time_graph_UPDATED.png", plot = reading_time_plot, height = 4, width = 6, dpi = 300)
+
+```
+Adapted average number of reading days per graph
+```{r}
+reading_time_days_graph_adapted <-   all_data_jt1_date_read_and_isbn %>% 
+  select(date_read, read_time_days) %>% 
+  filter(read_time_days <= 22) %>%
+  na.omit() %>%
+mutate(week_start = floor_date(date_read, unit = "week"))  %>%
+  group_by(week_start) %>%
+  summarize(avg_read_time_days = mean(read_time_days)) %>%
+      filter(week_start >= as.Date("2018-01-01"))
+```
+
+```{r}
+ggplot() + 
+  geom_line(data = reading_time_days_graph_adapted, aes(x = week_start, y = avg_read_time_days), size = 0.4) + 
+  geom_vline(xintercept = as.numeric(as.Date("2020-03-01")), color = "red", linetype = "dashed") +
+  labs(x = "",
+       y = "Days",
+       title = "Figure 4 A: Filtered version for average number of days to read a book") +
+      scale_x_date(date_labels = "%b-%Y", 
+               breaks = seq(as.Date("2018-01-01"), as.Date("2022-01-01"), by = "6 month"), 
+               limits = c(as.Date("2015-01-01"), as.Date("2022-01-01")),
+               name = "") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(size = 13, hjust = 0.5)) +
+  ggtitle("Figure 4 A: Filtered version for average number of days to read a book")
+
+ggsave("user_reading_time_per_day_adapted.png", plot = reading_time_days_graph_adapted_plot, height = 4, width = 6, dpi = 300)
+```
+
+
+## Average age of books graph
+```{r}
+average_age_of_book <-   all_data_jt1_date_read_and_isbn %>% 
+  select(date_read, age_of_book) %>% 
+  mutate(age_of_book = ifelse(age_of_book > quantile(age_of_book, 0.98, na.rm = TRUE), NA, age_of_book)) %>%
+  na.omit() %>%
+mutate(week_start = floor_date(date_read, unit = "week"))  %>%
+  group_by(week_start) %>%
+  summarize(avg_age_of_book = mean(age_of_book)) %>%
+        filter(week_start >= as.Date("2018-01-01"))
+```
+
+Typical boring graph 
+```{r}
+ average_age_of_book_plot <- ggplot() + 
+  geom_line(data = average_age_of_book, aes(x = week_start, y = avg_age_of_book), size = 0.3) + 
+  geom_vline(xintercept = as.numeric(as.Date("2020-03-01")), color = "red", linetype = "dashed") +
+  labs(x = "",
+       y = "Age of book (in years)",
+       title = "Figure 6: Development of average age of books read") +
+      scale_x_date(date_labels = "%b-%Y", 
+               breaks = seq(as.Date("2018-01-01"), as.Date("2022-01-01"), by = "3 month"), 
+               limits = c(as.Date("2018-01-01"), as.Date("2022-01-01")),
+               name = "") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(size = 13, hjust = 0.5))
+
+ggsave("average_age_of_book_UPDATED.png", plot = average_age_of_book_plot, height = 4, width = 6, dpi = 300)
+  
+```
+## Total number of pages
+```{r}
+number_of_pages_graph <- all_data_jt1_date_read_and_isbn %>%
+  select(num_pages, date_read) %>% 
+  na.omit() %>%
+  mutate(week_start = floor_date(date_read, unit = "week"))  %>%
+  group_by(week_start) %>%
+  summarize(number_of_pages_read = sum(num_pages)) %>%
+  mutate(total_pages_read = ifelse(number_of_pages_read > quantile(number_of_pages_read, 0.98, na.rm = TRUE), NA, number_of_pages_read)) %>%
+  filter(week_start >= as.Date("2018-01-01"))
+```
+
+```{r}
+number_of_pages_plot <- ggplot() + 
+  geom_line(data = number_of_pages_graph, aes(x = week_start, y = number_of_pages_read), size = 0.3) + 
+  geom_vline(xintercept = as.numeric(as.Date("2020-03-01")), color = "red", linetype = "dashed") +
+  labs(x = "",
+       y = "Number of pages",
+       title = "Figure 7: Total number of pages read in a week") +
+      scale_x_date(date_labels = "%b-%Y", 
+               breaks = seq(as.Date("2018-01-01"), as.Date("2022-01-01"), by = "3 month"), 
+               limits = c(as.Date("2018-01-01"), as.Date("2022-01-01")),
+               name = "") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(size = 13, hjust = 0.5))
+
+ggsave("number_of_pages_graph.png", plot = number_of_pages_plot, height = 4, width = 6, dpi = 300)
+```
+
+## Total number of books
+```{r}
+number_of_books_graph <- all_data_jt1_date_read_and_isbn %>%
+  select(user_id, date_read) %>% 
+  na.omit() %>%
+  mutate(week_start = floor_date(date_read, unit = "week"), number_of_books = 1) %>%
+  group_by(week_start) %>%
+  summarize(sum_of_books = sum(number_of_books)) %>%
+  filter(week_start >= as.Date("2018-01-01"))
+```
+
+```{r}
+number_of_books_plot <- ggplot() + 
+  geom_line(data = number_of_books_graph, aes(x = week_start, y = sum_of_books), size = 0.3) + 
+  geom_vline(xintercept = as.numeric(as.Date("2020-03-01")), color = "red", linetype = "dashed") +
+  labs(x = "",
+       y = "Number of books",
+       title = "Figure 8: Total number of books read in a week") +
+      scale_x_date(date_labels = "%b-%Y", 
+               breaks = seq(as.Date("2018-01-01"), as.Date("2022-01-01"), by = "3 month"), 
+               limits = c(as.Date("2018-01-01"), as.Date("2022-01-01")),
+               name = "") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(size = 13, hjust = 0.5))
+
+ggsave("number_of_books_graph_UPDATED.png", plot = number_of_books_plot, height = 4, width = 6, dpi = 300)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+From an old document
+```{r}
+# Create a new column for year and month
+users_graph$year_month <- format(users_graph$week_start, "%Y-%m")
+
+# Create a new column for year
+users_graph$year <- format(users_graph$week_start, "%Y")
+
+# Find the first and last dates for each year
+year_range <- users_graph %>%
+  group_by(year) %>%
+  summarize(min_date = min(week_start), max_date = max(week_start))
+
+# Calculate the number of days between the first and last date for each year
+year_range$year_duration <- as.numeric(difftime(year_range$max_date, year_range$min_date, units = "days"))
+
+# Calculate the center point for each year's data
+year_range$year_center <- year_range$min_date + year_range$year_duration / 2
+
+# Create the plot
+ggplot(users_graph, aes(x = week_start, y = avg_user_rating, color = year, group = year)) +
+  geom_line(position = position_dodge(width = 0.5)) +
+  scale_x_date(limits = c(min(year_range$year_center) - 180, max(year_range$year_center) + 180), 
+               breaks = year_range$year_center, 
+               labels = year_range$year, 
+               date_labels = "%b") +
+  labs(title = "Average User Rating by Month and Year",
+       x = "Month",
+       y = "Average User Rating",
+       color = "Year")
+```
+
+
+Making the graph
+```{r}
+ggplot(data = users_graph, aes(x = week_start)) +
+  geom_line(aes(y = avg_user_rating), size = 0.8) +
+  geom_line(aes(y = avg_stringency_index/25), size = 0.8) +
+  scale_y_continuous(name = "Average User Rating",
+                     sec.axis = sec_axis(~.*25, name = "Average Stringency Index")) +
+  labs(title = "Average User Rating and Stringency Index Over Time",
+       x = "Two-Week Intervals", y = "Average User Rating",
+       color = "Metric")
+
+
+```
+
+Removing data
+```{r}
+rm(users_graph)
+```
+
+## On reading time per days
+Preparing data for graph
+```{r}
+read_time_days_graph <-   all_data_jt1_date_read_and_isbn %>% select(date_read, read_time_days, stringency_index) %>% na.omit() %>%
+mutate(week_start = floor_date(date_read, unit = "week"))  %>%
+  group_by(week_start) %>%
+  summarize(avg_stringency_index = mean(stringency_index),
+            avg_read_time_days = mean(read_time_days))
+```
+
+Making the graph
+```{r}
+ggplot(data = read_time_days_graph, aes(x = week_start)) +
+  geom_line(aes(y = avg_read_time_days), size = 0.8) +
+  geom_line(aes(y = avg_stringency_index/3), size = 0.8) +
+  scale_y_continuous(name = "Average reading time per days",
+                     sec.axis = sec_axis(~.*3, name = "Average Stringency Index")) 
+
+```
+
+Removing data
+```{r}
+
+```
+
+## On Age of a book
+Preparing data for graph
+```{r}
+age_of_book_graph <-   all_data_jt1_date_read_and_isbn %>% select(date_read, age_of_book, stringency_index) %>% na.omit() %>%
+mutate(week_start = floor_date(date_read, unit = "14 days"))  %>%
+  group_by(week_start) %>%
+  summarize(avg_stringency_index = mean(stringency_index),
+            avg_age_of_book = mean(age_of_book))
+```
+
+Making the graph
+```{r}
+ggplot(data = age_of_book_graph, aes(x = week_start)) +
+  geom_line(aes(y = avg_age_of_book), size = 0.8) +
+  geom_line(aes(y = avg_stringency_index/3), size = 0.8) +
+  scale_y_continuous(
+                     sec.axis = sec_axis(~.*3, name = "Average Stringency Index")) 
+```
+
+Removing data
+```{r}
+
+```
+
+## On Total number of books read
+Preparing data for graph
+```{r}
+number_of_books_graph <- all_data_jt1_date_read_and_isbn %>%
+  select(user_id, date_read, stringency_index) %>% 
+  na.omit() %>%
+  mutate(bi_week_start = floor_date(date_read, unit = "week")) %>%
+  group_by(bi_week_start) %>%
+  summarize(count = n(), avg_stringency_index = mean(stringency_index))
+```
+
+Making the graph
+```{r}
+ggplot(data = number_of_books_graph, aes(x = bi_week_start)) +
+  geom_line(aes(y = count), size = 0.6)
+```
+
+Removing data
+```{r}
+
+```
+
+##On total number of pages read
+Preparing data for graph
+```{r}
+number_of_pages_graph <- all_data_jt1_date_read_and_isbn %>%
+  select(num_pages, date_read, stringency_index) %>% 
+  na.omit() %>%
+  mutate(bi_week_start = floor_date(date_read, unit = "week")) %>%
+  group_by(bi_week_start) %>%
+  summarize(count = sum(num_pages), avg_stringency_index = mean(stringency_index))
+```
+
+Making the graph
+```{r}
+ggplot(data = number_of_pages_graph, aes(x = bi_week_start)) +
+  geom_line(aes(y = count), size = 0.6)
+```
+
+Removing data
+```{r}
+
+```
