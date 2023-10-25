@@ -5,6 +5,10 @@ my academic work and some of my professional work as a research assistant. Here'
 
 
 ## BSc Economics thesis
+<div style="text-align:center;">
+  <img src="tilburg_uni.png" alt="Javier Torralba - Data Scientist and Web Developer" width="200" style="border-radius: 10px;">
+</div>
+
 For my bachelor thesis, I studied the effects of COVID restrictions on the way people consume leisure goods, specifically books. For this, I used an extensive dataset from the platform Goodreads (about 
 6.5 million observations and 39 variables). I applied an OLS fixed effects model to conduct this research. My research shows that after controlling for several fixed effects, on average, Goodreads users read more book, pages, and more quickly as COVID restrictions increase. 
 Light COVID restrictions do not have a significant effect on any of these three variables, but as restrictions increase, these effects are significantly magnified, up to, on average, 
