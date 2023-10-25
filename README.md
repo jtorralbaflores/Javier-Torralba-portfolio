@@ -1,6 +1,8 @@
 # Javier-Torralba-portfolio
+<img src="javier.png" alt="Javier Torralba" width="200" style="border-radius: 10px; box-shadow: 2px 2px 5px #888; margin: 10px;">
 Hello, and welcome to my portfolio! My name is Javier Torralba, and I am an MSc Data Science and Society student and BSc Economics graduate, both at Tilburg University. Here, you can find some of
 my academic work and some of my professional work as a research assistant. Here's a summary and overview of the directories in this repository. 
+
 
 ## BSc Economics thesis
 For my bachelor thesis, I studied the effects of COVID restrictions on the way people consume leisure goods, specifically books. For this, I used an extensive dataset from the platform Goodreads (about 
