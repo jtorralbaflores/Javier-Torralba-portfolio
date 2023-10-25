@@ -15,4 +15,5 @@ my thesis in this directory. I hope you enjoy it!
 
 ## Work as a research assistant
 I currently work for the Tilburg Science Hub as a research assistant. I collaborate with quantitative marketing professors in their research, most of them in the very early stages of their research.
-I am used to working with huge datasets hovering around several millions of observations. I am used to wrangling, visualizing, and modeling large datasets. 
+I am used to working with huge datasets hovering around several millions of observations. I am used to wrangling, visualizing, and modeling large datasets. At the moment I am pending approval on publishing more of 
+my work on this projects, which is difficult since most of this involve sensitive data and are in early stages of their research. 
