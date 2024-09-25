@@ -3,11 +3,39 @@
 Hello, and welcome to my portfolio! My name is Javier Torralba, and I am an MSc Data Science and Society student and BSc Economics graduate, both at Tilburg University. Here, you can find some of
 my academic work and some of my professional work as a research assistant. Here's a summary and overview of the directories in this repository. 
 
+## MSc Data Science Thesis - Predicting popularity on Instagram: Integrating deep learning, machine learning, and explainable AI for enhanced social media analytics
+
+Grade: 8/10
+
+In an era where social media platforms like Instagram influence
+economic and societal outcomes, accurately predicting the popularity
+of posts becomes essential. This thesis investigates the potential of
+integrating deep learning and machine learning models to forecast
+the popularity of Instagram posts before they are published. This research can be summarised in how integrating deep learning, machine
+learning, and explainable AI techniques optimizes the prediction
+and understanding of Instagram post popularity, considering diverse
+data features and error dynamics. Obtaining a sample of 133,642
+posts from 27,893 different users, I used a ResNet50 pre-trained on
+ImageNet and a BERT model pre-trained on Twitter data to extract
+image and text features. Different sets of features, including images,
+text, and user features, are tested on three different algorithms: XGBoost, Light Gradient Boosting Machine (LGBM), and Deep Neural
+Networks. The best-performing algorithm, LGBM, used all features
+and achieved an F1 score of about 69%. An error analysis shows that
+the error rate depends on the predicted probability value made by
+the model. SHAP values reveal that the number of followers and
+posts are the most influential in predicting the popularity of a post,
+yet image and text features can have a stronger predictive value together. Combining the best-performing model, domain knowledge,
+error analysis, and SHAP values can help Instagram users make
+data-driven decisions to post the most engaging content.
+
+
 
 ## BSc Economics thesis
 <div style="text-align:center;">
   <img src="tilburg_uni.png" alt="Javier Torralba - Data Scientist and Web Developer" width="200" style="border-radius: 10px;">
 </div>
+
+Grade: 8.5/10
 
 For my bachelor thesis, I studied the effects of COVID restrictions on the way people consume leisure goods, specifically books. For this, I used an extensive dataset from the platform Goodreads (about 
 6.5 million observations and 39 variables). I applied an OLS fixed effects model to conduct this research. My research shows that after controlling for several fixed effects, on average, Goodreads users read more book, pages, and more quickly as COVID restrictions increase. 
