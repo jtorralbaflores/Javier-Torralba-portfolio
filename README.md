@@ -30,7 +30,7 @@ data-driven decisions to post the most engaging content.
 
 
 
-## BSc Economics thesis
+## BSc Economics thesis - The effects of shocks in leisure time on book consumption: evidence from Goodreads 
 <div style="text-align:center;">
   <img src="tilburg_uni.png" alt="Javier Torralba - Data Scientist and Web Developer" width="200" style="border-radius: 10px;">
 </div>
